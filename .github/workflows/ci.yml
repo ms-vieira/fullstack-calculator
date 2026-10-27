@@ -1,0 +1,97 @@
+name: Verify calculator
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend/go.mod
+          cache: false
+      - name: Formatting
+        run: test -z "$(gofmt -l .)"
+      - run: go vet ./...
+      - run: go test -race -coverprofile=coverage.out ./...
+      - run: go tool cover -func=coverage.out
+      - run: go tool cover -html=coverage.out -o coverage.html
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-coverage
+          path: |
+            backend/coverage.out
+            backend/coverage.html
+          if-no-files-found: error
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run coverage
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/
+          if-no-files-found: error
+
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci --prefix frontend
+      - name: Install Chromium and system dependencies
+        timeout-minutes: 5
+        run: node frontend/node_modules/playwright-core/cli.js install --with-deps chromium
+      - name: Build full-stack Docker image
+        run: docker build -t calculator-ci .
+      - name: Start container
+        run: |
+          test "$(docker image inspect calculator-ci --format '{{.Config.User}}')" = "65532:65532"
+          docker run -d --name calculator-ci --read-only --cap-drop ALL --security-opt no-new-privileges:true -p 127.0.0.1:4173:8080 calculator-ci
+      - name: Container browser integration and accessibility
+        run: |
+          node frontend/scripts/e2e.mjs
+      - name: Verify graceful container shutdown
+        run: |
+          docker stop --time 10 calculator-ci
+          test "$(docker inspect calculator-ci --format '{{.State.ExitCode}}')" = "0"
+      - name: Container logs and cleanup
+        if: always()
+        run: |
+          docker logs calculator-ci || true
+          docker rm -f calculator-ci || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-results
+          path: e2e-results/

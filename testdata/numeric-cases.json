@@ -1,0 +1,119 @@
+{
+  "cases": [
+    {
+      "name": "zero",
+      "input": "0",
+      "value": 0
+    },
+    {
+      "name": "negative zero",
+      "input": "-0",
+      "value": 0
+    },
+    {
+      "name": "negative decimal",
+      "input": "-12.5",
+      "value": -12.5
+    },
+    {
+      "name": "scientific notation",
+      "input": "1E-3",
+      "value": 0.001
+    },
+    {
+      "name": "large finite",
+      "input": "1e308",
+      "value": 1e+308
+    },
+    {
+      "name": "smallest subnormal",
+      "input": "5e-324",
+      "value": 5e-324
+    },
+    {
+      "name": "zero with extreme exponent",
+      "input": "0e-400",
+      "value": 0
+    },
+    {
+      "name": "largest input length",
+      "input": "0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "value": 1e-126
+    },
+    {
+      "name": "overflow",
+      "input": "1e309",
+      "code": "NUMBER_OUT_OF_RANGE"
+    },
+    {
+      "name": "negative overflow",
+      "input": "-1e309",
+      "code": "NUMBER_OUT_OF_RANGE"
+    },
+    {
+      "name": "underflow",
+      "input": "1e-400",
+      "code": "NUMERIC_UNDERFLOW"
+    },
+    {
+      "name": "negative underflow",
+      "input": "-1e-400",
+      "code": "NUMERIC_UNDERFLOW"
+    },
+    {
+      "name": "too long",
+      "input": "0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "code": "INPUT_TOO_LONG"
+    },
+    {
+      "name": "decimal prefix garbage",
+      "input": "12abc",
+      "code": "INVALID_NUMBER"
+    },
+    {
+      "name": "hexadecimal",
+      "input": "0x10",
+      "code": "INVALID_NUMBER"
+    },
+    {
+      "name": "decimal comma",
+      "input": "1,5",
+      "code": "INVALID_NUMBER"
+    },
+    {
+      "name": "NaN",
+      "input": "NaN",
+      "code": "INVALID_NUMBER"
+    },
+    {
+      "name": "infinity",
+      "input": "Infinity",
+      "code": "INVALID_NUMBER"
+    },
+    {
+      "name": "missing integer part",
+      "input": ".5",
+      "code": "INVALID_NUMBER"
+    },
+    {
+      "name": "trailing decimal point",
+      "input": "5.",
+      "code": "INVALID_NUMBER"
+    },
+    {
+      "name": "leading plus",
+      "input": "+5",
+      "code": "INVALID_NUMBER"
+    },
+    {
+      "name": "leading zero",
+      "input": "01",
+      "code": "INVALID_NUMBER"
+    },
+    {
+      "name": "incomplete exponent",
+      "input": "1e-",
+      "code": "INVALID_NUMBER"
+    }
+  ]
+}

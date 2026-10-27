@@ -1,0 +1,14 @@
+node_modules/
+dist/
+coverage/
+*.out
+coverage.html
+.env
+.env.*.local
+.DS_Store
+.npm-cache/
+.cache/
+bin/
+*.log
+e2e-results/
+/docs/
